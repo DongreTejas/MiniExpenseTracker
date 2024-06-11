@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<nav class="nav-wrapper teal lighten-1">
+    <div class="container">
+        <a href="#" class="brand-logo">Expense Tracker</a>
+        <ul id="nav-mobile" class="right hide-on-med-and-down">
+            <li><a href="#">Welcome, {{ user }}</a></li>
+            <li><a href="{% url 'logout' %}" class="btn">Logout</a></li>
+        </ul>
+    </div>
+</nav>
+
+<div class="container">
+    <section class="section section-stats">
+        <div class="row">
+            <div class="col s12 m6 l6">
+                <div class="card-panel">
+                    <h5 class="bold">Total Expense</h5>
+                    <span class="total-expense"><h1>₹{{ total_expenses }}</h1></span>
+                </div>
+            </div>
+            <div class="col s12 m6 l6">
+                <div class="card-panel">
+                    <h5 class="bold">Total Number of Expenses</h5>
+                    <h1>{{ total_expense_count }}</h1>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="section section-expenses">
+        <div class="row">
+            <button class="btn waves-effect right modal-trigger" data-target="modal-add-expense">
+                <i class="material-icons white-text left">add_circle</i>
+                Add Expense 
+            </button>
+        </div>
+        <ul class="z-depth-1">
+            <!-- Heading Row -->
+            <li>
+                <div class="row card-panel z-depth-0">
+                    <div class="col s12 m2 l2">
+                        <span class="title bold">S.No.</span>
+                    </div>
+                    <div class="col s12 m3 l3">
+                        <span class="title bold">Category</span>
+                    </div>
+                    <div class="col s12 m3 l3">
+                        <span class="title bold">Expense</span>
+                    </div>
+                    <div class="col s12 m2 l2">
+                        <span class="title bold">Date</span>
+                    </div>
+                    <div class="col s12 m2 l2">
+                        <span class="title bold">Description</span>
+                    </div>
+                </div>
+            </li>
+            {% for expense in expenses %}
+            <li>
+                <div class="card-panel z-depth-0 expense">
+                    <div class="row">
+                        <div class="col s12 m2 l2">
+                            <span class="title">{{ forloop.counter }}</span>
+                        </div>
+                        <div class="col s12 m3 l3">
+                            <span class="title">{{ expense.category }}</span>
+                        </div>
+                        <div class="col s12 m3 l3">
+                            <span class="title">{{ expense.cost }}</span>
+                        </div>
+                        <div class="col s12 m2 l2">
+                            <span class="title">{{ expense.created_at|date:"Y-m-d" }}</span>
+                        </div>
+                        <div class="col s12 m2 l2 right-align">
+                            <span class="title expense-description">{{ expense.description }}</span>
+                            <a href="#modal-edit-expense-{{ expense.id }}" class="btn-floating btn-small waves-effect waves-light modal-trigger">
+                                <i class="material-icons">edit</i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </li>
+
+
+            <!-- Edit Expense Modal -->
+            <div id="modal-edit-expense-{{ expense.id }}" class="modal">
+                <div class="modal-content">
+                    <h4>Edit Expense</h4>
+                    <!-- Edit form -->
+                    <form method="POST" action="{% url 'dashboard' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="expense_id" value="{{ expense.id }}">
+                        <div class="input-field">
+                            <select name="category">
+                                {% for choice in form.fields.category.choices %}
+                                    <option value="{{ choice.0 }}" {% if choice.0 == expense.category %}selected{% endif %}>{{ choice.1 }}</option>
+                                {% endfor %}
+                            </select>
+                            <label for="category">Category</label>
+                        </div>
+                        <div class="input-field">
+                            <input id="cost" name="cost" type="number" class="validate" value="{{ expense.cost }}">
+                            <label for="cost">Expense</label>
+                        </div>
+                        <div class="input-field">
+                            <input id="description" name="description" type="text" class="validate" value="{{ expense.description }}">
+                            <label for="description">Description</label>
+                        </div>
+                        <div class="row">
+                            <div class="col s12">
+                                <button class="btn waves-effect waves-light red" type="submit" name="delete_expense" value="{{ expense.id }}">
+                                    Delete
+                                    <i class="material-icons right">delete</i>
+                                </button>
+                                <button class="btn waves-effect waves-light" type="submit">
+                                    Submit
+                                    <i class="material-icons right">send</i>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <a href="#!" class="modal-close waves-effect waves-green btn-flat">Cancel</a>
+                </div>
+            </div>
+            {% endfor %}
+        </ul>
+    </section>
+</div>
+
+<!-- Add Expense Modal Structure -->
+<div id="modal-add-expense" class="modal">
+    <div class="modal-content">
+        <h4>Add New Expense</h4>
+        <div class="row">
+            <form class="col s12" method="POST" action="{% url 'dashboard' %}">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <div class="row">
+                    <div class="col s12">
+                        <button class="btn waves-effect waves-light" type="submit">
+                            Submit
+                            <i class="material-icons right">send</i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <a href="#!" class="modal-close waves-effect waves-green btn-flat">Cancel</a>
+    </div>
+</div>
+
+<!-- Materialize JavaScript -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var elemsDropdown = document.querySelectorAll('.dropdown-trigger');
+        M.Dropdown.init(elemsDropdown);
+        
+        var elemsModal = document.querySelectorAll('.modal');
+        M.Modal.init(elemsModal);
+
+        var elemsSelect = document.querySelectorAll('select');
+        M.FormSelect.init(elemsSelect);
+    });
+</script> 
+
+{% endblock %}
