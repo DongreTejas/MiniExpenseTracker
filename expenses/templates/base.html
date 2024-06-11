@@ -20,24 +20,71 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
-html {
-    font-family: 'Montserrat';
-    background-color : #E0E0E0;
-}
-h1, h6{
-    font-weight: bold;
-}
-.bold{
-    font-weight: bold;
-}
-.row{
-    margin: 0!important;
-}
-
-nav.nav-wrapper {
-    background-color: #4db6ac; /* Teal lighten-2 */
-}
-
+    html {
+      font-family: 'Montserrat';
+      background-color: #E0E0E0;
+    }
+    h1, h6 {
+      font-weight: bold;
+    }
+    .bold {
+      font-weight: bold;
+    }
+    .row {
+      margin: 0!important;
+    }
+    
+    nav.nav-wrapper {
+      background-color: #4db6ac; /* Teal lighten-2 */
+    }
+    
+    /* Media queries for responsive behavior */
+    @media screen and (max-width: 992px) { /* Mobile and tablet */
+      .right.hide-on-med-and-down {
+        display: none;
+      }
+    
+      /* Style the off-canvas mobile menu */
+      .sidenav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;  /* Full-width menu on mobile and tablet */
+        height: 100vh;
+        background-color: #4db6ac;
+        overflow-y: auto;
+        z-index: 999;
+      }
+    
+      .sidenav a {
+        color: #fff;
+        padding: 16px;
+        display: block;
+        text-decoration: none;
+      }
+    
+      .sidenav a:hover {
+        background-color: #3e8e77;
+      }
+    }
+    
+    @media screen and (min-width: 993px) { /* Laptops and larger */
+      .sidenav-trigger {
+        display: none;  /* Hide menu trigger on larger screens */
+      }
+    
+      #nav-mobile {  /* Display desktop menu items inline */
+        display: flex;
+        flex-direction: row;
+        list-style: none; /* Remove default bullet points */
+        margin: 0; /* Remove default margin */
+        padding: 0; /* Remove default padding */
+      }
+    
+      #nav-mobile li {
+        margin: 0 10px;  /* Add spacing between menu items */
+      }
+    }
  /* dashboard details  */
 
  
@@ -106,6 +153,7 @@ nav.nav-wrapper {
     align-items: center;
     justify-content: space-between;
 }
+
 </style>
 </head>
 <body>
