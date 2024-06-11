@@ -73,7 +73,7 @@
                             <span class="title">{{ expense.created_at|date:"Y-m-d" }}</span>
                         </div>
                         <div class="col s12 m2 l2 right-align">
-                            <span class="title expense-description">{{ expense.description }}</span>
+                            <span class="title expense-description tooltipped" data-tooltip="{{ expense.description }}">{{ expense.description }}</span>
                             <a href="#modal-edit-expense-{{ expense.id }}" class="btn-floating btn-small waves-effect waves-light modal-trigger">
                                 <i class="material-icons">edit</i>
                             </a>
@@ -81,7 +81,6 @@
                     </div>
                 </div>
             </li>
-
 
             <!-- Edit Expense Modal -->
             <div id="modal-edit-expense-{{ expense.id }}" class="modal">
@@ -166,6 +165,9 @@
 
         var elemsSelect = document.querySelectorAll('select');
         M.FormSelect.init(elemsSelect);
+
+        var elemsTooltips = document.querySelectorAll('.tooltipped');
+        M.Tooltip.init(elemsTooltips);
     });
 </script> 
 
