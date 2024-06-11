@@ -16,7 +16,7 @@ def register_view(request):
             return redirect('login')
     else:
         form = UserRegistrationForm()
-    return render(request, 'expenses/templates/authentication/register.html', {'form': form})
+    return render(request, 'authentication/register.html', {'form': form})
 @guest
 def login_view(request):
     if request.method == 'POST':
@@ -28,7 +28,7 @@ def login_view(request):
     else:
         initial_data = {'username':'', 'password':''}
         form = AuthenticationForm(initial = initial_data)
-    return render(request, 'expenses/templates/authentication/login.html' ,{'form':form})
+    return render(request, 'authentication/login.html' ,{'form':form})
 # Only logged-in users can access
 def dashboard_view(request):
     if request.method == 'POST':
