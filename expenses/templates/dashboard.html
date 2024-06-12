@@ -99,8 +99,9 @@
                             <label for="category">Category</label>
                         </div>
                         <div class="input-field">
-                            <input id="cost" name="cost" type="number" class="validate" value="{{ expense.cost }}">
+                            <input id="cost" name="cost" type="number" class="validate" value="{{ expense.cost }}" min="1">
                             <label for="cost">Expense</label>
+                            <span class="helper-text" data-error="Cost must be greater than 0."></span>
                         </div>
                         <div class="input-field">
                             <input id="description" name="description" type="text" class="validate" value="{{ expense.description }}">
@@ -134,7 +135,7 @@
     <div class="modal-content">
         <h4>Add New Expense</h4>
         <div class="row">
-            <form class="col s12" method="POST" action="{% url 'dashboard' %}">
+            <form class="col s12" method="POST" action="{% url 'dashboard' %}" data-form-type="add">
                 {% csrf_token %}
                 {{ form.as_p }}
                 <div class="row">
@@ -156,49 +157,40 @@
 <!-- Materialize JavaScript -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 <script>
-    function validateCostField() {
-        const costInput = document.querySelectorAll('input[name="cost"]');
-        const errorMessages = [];
-
-        costInput.forEach(input => {
-            const cost = Number(input.value);
-            if (cost < 1) {
-                errorMessages.push(`Cost must be greater than 0.`);
-                input.classList.add('invalid');
-            } else {
-                input.classList.remove('invalid');
-            }
-        });
-
-        if (errorMessages.length > 0) {
-            M.toast({ html: errorMessages.join('<br>'), classes: 'red' });
+    function validateAddExpenseForm(event) {
+        const form = event.target;
+        const costInput = form.querySelector('input[name="cost"]');
+    
+        if (costInput.value < 1) {
+            M.toast({ html: 'Cost must be greater than 0.', classes: 'red' });
+            costInput.classList.add('invalid');
             return false;
+        } else {
+            costInput.classList.remove('invalid');
         }
-
+    
         return true;
     }
-
+    
     document.addEventListener('DOMContentLoaded', function() {
         var elemsDropdown = document.querySelectorAll('.dropdown-trigger');
         M.Dropdown.init(elemsDropdown);
-
+    
         var elemsModal = document.querySelectorAll('.modal');
         M.Modal.init(elemsModal);
-
+    
         var elemsSelect = document.querySelectorAll('select');
         M.FormSelect.init(elemsSelect);
-
+    
         var elemsTooltips = document.querySelectorAll('.tooltipped');
         M.Tooltip.init(elemsTooltips);
-
-        // Add event listeners to the forms
-        const forms = document.querySelectorAll('form');
-        forms.forEach(form => {
-            form.addEventListener('submit', (event) => {
-                if (!validateCostField()) {
-                    event.preventDefault();
-                }
-            });
+    
+        // Add event listener to the "Add Expense" form
+        const addExpenseForm = document.querySelector('form[data-form-type="add"]');
+        addExpenseForm.addEventListener('submit', (event) => {
+            if (!validateAddExpenseForm(event)) {
+                event.preventDefault();
+            }
         });
     });
 </script>
