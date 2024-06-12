@@ -156,10 +156,32 @@
 <!-- Materialize JavaScript -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 <script>
+    function validateCostField() {
+        const costInput = document.querySelectorAll('input[name="cost"]');
+        const errorMessages = [];
+
+        costInput.forEach(input => {
+            const cost = Number(input.value);
+            if (cost < 1) {
+                errorMessages.push(`Cost must be greater than 0.`);
+                input.classList.add('invalid');
+            } else {
+                input.classList.remove('invalid');
+            }
+        });
+
+        if (errorMessages.length > 0) {
+            M.toast({ html: errorMessages.join('<br>'), classes: 'red' });
+            return false;
+        }
+
+        return true;
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
         var elemsDropdown = document.querySelectorAll('.dropdown-trigger');
         M.Dropdown.init(elemsDropdown);
-        
+
         var elemsModal = document.querySelectorAll('.modal');
         M.Modal.init(elemsModal);
 
@@ -168,7 +190,17 @@
 
         var elemsTooltips = document.querySelectorAll('.tooltipped');
         M.Tooltip.init(elemsTooltips);
+
+        // Add event listeners to the forms
+        const forms = document.querySelectorAll('form');
+        forms.forEach(form => {
+            form.addEventListener('submit', (event) => {
+                if (!validateCostField()) {
+                    event.preventDefault();
+                }
+            });
+        });
     });
-</script> 
+</script>
 
 {% endblock %}
