@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from .models import UserProfile
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator,EmailValidator
 # Define your choices as a list of tuples
 CHOICES = [
     ('Grocery', 'Grocery'),
@@ -15,12 +15,12 @@ CHOICES = [
 
 class MyForm(forms.Form):
     category = forms.ChoiceField(choices=CHOICES)
-    cost = forms.IntegerField(label="Amount Spent", validators=[MinValueValidator(1, "Cost must be greater than 0.")])
+    cost = forms.IntegerField(label="Amount Spent",validators=[MinValueValidator(1, "Cost must be greater than 0.")],widget=forms.NumberInput(attrs={'min': '1'}))
     description = forms.CharField(max_length = 100, label = "Description", required=False)
 
 
 class UserRegistrationForm(UserCreationForm):
-    email = forms.EmailField(required=True)
+    email = forms.EmailField(required=True,validators=[EmailValidator()])
 
     class Meta:
         model = User
