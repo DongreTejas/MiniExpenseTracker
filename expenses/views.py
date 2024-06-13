@@ -29,7 +29,7 @@ def login_view(request):
         initial_data = {'username':'', 'password':''}
         form = AuthenticationForm(initial = initial_data)
     return render(request, 'authentication/login.html' ,{'form':form})
-# Only logged-in users can access
+@auth# Only logged-in users can access
 def dashboard_view(request):
     if request.method == 'POST':
         form = MyForm(request.POST)
