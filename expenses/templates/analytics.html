@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+    <nav class="nav-wrapper teal lighten-1">
+        <div class="container">
+            <a class="brand-logo"><em>Expense Tracker</em></a>
+            <a href="#" data-target="nav-mobile" class="sidenav-trigger hide-on-large"><i class="material-icons">menu</i></a>
+            <ul class="right hide-on-med-and-down">
+                <li><a href="#">Welcome, {{ user }}</a></li>
+                <li><a href="{% url 'dashboard' %}" class="btn">Expenses</a></li>
+            </ul>
+            <ul id="nav-mobile" class="right sidenav"></ul>
+        </div>
+    </nav>
+    <div class="container">
+        <h3  class="teal-text text-darken-2"><em>Category-wise Expenses</em></h3>
+        {% if category_costs %}
+            <div class="chart-container">
+                <canvas id="categoryPieChart"></canvas>
+            </div>
+        {% else %}
+            <p>No expenses added yet. Add expenses for analytics.</p>
+        {% endif %}
+
+        <h3  class="teal-text text-darken-2" style="margin-top: 50px;"><em>Daily Expenses (Last 7 Days)</em></h3>
+        {% if daily_costs %}
+            <div class="chart-container">
+                <canvas id="dailyBarChart"></canvas>
+            </div>
+        {% else %}
+            <p>No expenses added in the last 7 days.</p>
+        {% endif %}
+
+        <!-- Include Chart.js library -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+            // Prepare data for the pie chart
+            var categoryLabels = [];
+            var categoryData = [];
+
+            // Iterate over category_costs and populate the data arrays
+            {% for category_cost in category_costs %}
+                categoryLabels.push('{{ category_cost.category }}');
+                categoryData.push({{ category_cost.total_cost }});
+            {% endfor %}
+
+            // Create the pie chart
+            var ctxPie = document.getElementById('categoryPieChart').getContext('2d');
+            var categoryPieChart = new Chart(ctxPie, {
+                type: 'pie',
+                data: {
+                    labels: categoryLabels,
+                    datasets: [{
+                        data: categoryData,
+                        backgroundColor: [
+                            '#FF6384', '#36A2EB', '#FFCE56', '#8BC34A', '#9C27B0',
+                            '#FF9800', '#4CAF50', '#673AB7', '#E91E63', '#2196F3'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+
+            // Prepare data for the bar chart
+            var dailyLabels = [];
+            var dailyData = [];
+
+            // Iterate over daily_costs and populate the data arrays
+            {% for daily_cost in daily_costs %}
+                dailyLabels.push('{{ daily_cost.created_at }}');
+                dailyData.push({{ daily_cost.total_cost }});
+            {% endfor %}
+
+            // Create the bar chart
+            var ctxBar = document.getElementById('dailyBarChart').getContext('2d');
+            var dailyBarChart = new Chart(ctxBar, {
+                type: 'bar',
+                data: {
+                    labels: dailyLabels,
+                    datasets: [{
+                        label: 'Daily Expenses',
+                        data: dailyData,
+                        backgroundColor: '#36A2EB'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            beginAtZero: true
+                        },
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        </script>
+    </div>
+{% endblock %}

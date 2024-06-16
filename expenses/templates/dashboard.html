@@ -3,14 +3,18 @@
 {% block content %}
 <nav class="nav-wrapper teal lighten-1">
     <div class="container">
-      <a href="#" class="brand-logo">Expense Tracker</a>
+      <a href="#" class="brand-logo"><em>Expense Tracker</em></a>
       <a href="#" data-target="nav-mobile" class="sidenav-trigger hide-on-large"><i class="material-icons">menu</i></a>  <ul class="right hide-on-med-and-down">  <li><a href="#">Welcome, {{ user }}</a></li>
         <li><a href="{% url 'logout' %}" class="btn">Logout</a></li>
       </ul>
       <ul id="nav-mobile" class="right sidenav">  </ul>
     </div>
   </nav>
-
+  <div class="row">
+    <div class=" right-align" >
+        <a class="btn waves-effect btn-large" href="{% url 'analytics' %}">Analytics</a>
+    </div>
+</div>
 <div class="container">
     <section class="section section-stats">
         <div class="row">
@@ -107,6 +111,10 @@
                             <input id="description" name="description" type="text" class="validate" value="{{ expense.description }}">
                             <label for="description">Description</label>
                         </div>
+                        <div class="input-field">
+                            <input id="created_at" name="created_at" type="date" class="validate" value="{{ expense.created_at|date:'Y-m-d' }}">
+                            <label for="created_at">Date</label>
+                        </div>
                         <div class="row">
                             <div class="col s12">
                                 <button class="btn waves-effect waves-light red" type="submit" name="delete_expense" value="{{ expense.id }}">
@@ -157,6 +165,7 @@
 <!-- Materialize JavaScript -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 <script>
+  
     function validateAddExpenseForm(event) {
         const form = event.target;
         const costInput = form.querySelector('input[name="cost"]');

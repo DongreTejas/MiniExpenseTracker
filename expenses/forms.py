@@ -17,7 +17,7 @@ class MyForm(forms.Form):
     category = forms.ChoiceField(choices=CHOICES)
     cost = forms.IntegerField(label="Amount Spent",validators=[MinValueValidator(1, "Cost must be greater than 0.")],widget=forms.NumberInput(attrs={'min': '1'}))
     description = forms.CharField(max_length = 100, label = "Description", required=False)
-
+    created_at = forms.DateField(label="Date", widget=forms.DateInput(attrs={'type': 'date'}), required=True)
 
 class UserRegistrationForm(UserCreationForm):
     email = forms.EmailField(required=True,validators=[EmailValidator()])

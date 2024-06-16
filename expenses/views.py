@@ -5,7 +5,7 @@ from .middlewares import auth,guest
 from expenses.models import Expense
 from .forms import MyForm,UserRegistrationForm
 from django.db.models import Sum,F
-
+from django.utils.timezone import now, timedelta
 
 @guest
 def register_view(request):
@@ -29,7 +29,7 @@ def login_view(request):
         initial_data = {'username':'', 'password':''}
         form = AuthenticationForm(initial = initial_data)
     return render(request, 'authentication/login.html' ,{'form':form})
-@auth# Only logged-in users can access
+@auth # Only logged-in users can access
 def dashboard_view(request):
     if request.method == 'POST':
         form = MyForm(request.POST)
@@ -47,6 +47,7 @@ def dashboard_view(request):
                 expense.category = form.cleaned_data['category']
                 expense.cost = form.cleaned_data['cost']
                 expense.description = form.cleaned_data['description']
+                expense.created_at = form.cleaned_data['created_at']
                 expense.save()
             else:
                 # Create new expense
@@ -54,7 +55,8 @@ def dashboard_view(request):
                     user=request.user,
                     category=form.cleaned_data['category'],
                     cost=form.cleaned_data['cost'],
-                    description=form.cleaned_data['description']
+                    description=form.cleaned_data['description'],
+                    created_at=form.cleaned_data['created_at']
                 )
                 expense.save()
         return redirect('dashboard')
@@ -65,15 +67,30 @@ def dashboard_view(request):
     total_expenses = expenses.aggregate(Sum('cost'))['cost__sum'] or 0
     total_expense_count = expenses.count()
 
-    return render(request, 'dashboard.html', {'form': MyForm(), 'expenses': expenses, 'total_expenses': total_expenses, 'total_expense_count': total_expense_count})
+    return render(request, 'dashboard.html', {'form': MyForm(), 'expenses': expenses, 'total_expenses': total_expenses, 'total_expense_count': total_expense_count })
 
 
+def analytics_view(request):
+    expenses = Expense.objects.filter(user=request.user)
+    category_costs = expenses.values('category').annotate(total_cost=Sum('cost'))
 
+
+    seven_days_ago = now().date() - timedelta(days=7)
+    last_7_days_expenses = expenses.filter(created_at__date__gte=seven_days_ago)
+    
+    
+    daily_costs = last_7_days_expenses.values('created_at').annotate(total_cost=Sum('cost')).order_by('created_at')
+
+    context = {
+        'expenses': expenses,
+        'category_costs': category_costs,
+        'daily_costs': daily_costs,
+    }
+    return render(request, 'analytics.html', context)
 
 def logout_view(request):
     logout(request)
     return redirect('login')
-
 
 
 
