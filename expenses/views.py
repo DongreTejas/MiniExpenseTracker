@@ -5,8 +5,8 @@ from .middlewares import auth,guest
 from expenses.models import Expense
 from .forms import MyForm,UserRegistrationForm
 from django.db.models import Sum,F
-from django.utils.timezone import now, timedelta
-
+from django.utils.timezone import timedelta
+from django.utils import timezone
 @guest
 def register_view(request):
     if request.method == 'POST':
@@ -69,24 +69,23 @@ def dashboard_view(request):
 
     return render(request, 'dashboard.html', {'form': MyForm(), 'expenses': expenses, 'total_expenses': total_expenses, 'total_expense_count': total_expense_count })
 
-
 def analytics_view(request):
     expenses = Expense.objects.filter(user=request.user)
     category_costs = expenses.values('category').annotate(total_cost=Sum('cost'))
 
-
-    seven_days_ago = now().date() - timedelta(days=6)
+    now = timezone.now().date()
+    seven_days_ago = now - timedelta(days=6)
     last_7_days_expenses = expenses.filter(created_at__date__gte=seven_days_ago)
 
     # Initialize a dictionary for the last 7 days with 0 values
     daily_cost_dict = {seven_days_ago + timedelta(days=i): 0 for i in range(7)}
 
     # Query to get expenses summed by date
-    daily_expenses = last_7_days_expenses.values('created_at').annotate(total_cost=Sum('cost')).order_by('created_at')
+    daily_expenses = last_7_days_expenses.values('created_at__date').annotate(total_cost=Sum('cost')).order_by('created_at')
 
     # Update dictionary with actual expense values
     for daily in daily_expenses:
-        daily_cost_dict[daily['created_at']] = daily['total_cost']
+        daily_cost_dict[daily['created_at__date']] = daily['total_cost']
 
     # Create a list from the dictionary to pass to the template
     daily_costs = [{'date': date, 'total_cost': cost} for date, cost in daily_cost_dict.items()]

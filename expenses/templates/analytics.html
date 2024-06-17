@@ -69,50 +69,48 @@
             });
 
             // Prepare data for the bar chart
-        var dailyLabels = [];
-        var dailyData = [];
-        var maxExpense = 2000;  // Default max value for the y-axis
-        {% for daily_cost in daily_costs %}
-            dailyLabels.push('{{ daily_cost.created_at|date:"Y-m-d" }}');
-            dailyData.push({{ daily_cost.total_cost }});
-            if ({{ daily_cost.total_cost }} > maxExpense) {
-                maxExpense = {{ daily_cost.total_cost }};
-            }
-        {% endfor %}
+            var dailyLabels = [];
+            var dailyData = [];
+            var maxExpense = 2000;  // Default max value for the y-axis
+            {% for daily_cost in daily_costs %}
+                dailyLabels.push('{{ daily_cost.date|date:"Y-m-d" }}');
+                dailyData.push({{ daily_cost.total_cost }});
 
+                if ({{ daily_cost.total_cost }} > maxExpense) {
+                    maxExpense = {{ daily_cost.total_cost }};
+                }
+            {% endfor %}
 
-        // Create the bar chart
-        var ctx2 = document.getElementById('dailyBarChart').getContext('2d');
-        var dailyBarChart = new Chart(ctx2, {
-            type: 'bar',
-            data: {
-                labels: dailyLabels,
-                datasets: [{
-                    label: 'Daily Expenses',
-                    data: dailyData,
-                    backgroundColor: '#36A2EB'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: maxExpense < 2000 ? 2000 : maxExpense,  
-                        suggestedMin: 0,
-                        ticks: {
-                            callback: function(value) { return '₹' + value; },
-                     
+            // Create the bar chart
+            var ctx2 = document.getElementById('dailyBarChart').getContext('2d');
+            var dailyBarChart = new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels: dailyLabels,
+                    datasets: [{
+                        label: 'Daily Expenses',
+                        data: dailyData,
+                        backgroundColor: '#36A2EB'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: maxExpense < 2000 ? 2000 : maxExpense,
+                            suggestedMin: 0,
+                            ticks: {
+                                callback: function(value) { return '₹' + value; },
+                            }
                         }
                     }
                 }
-            }
-        });
+            });
 
-        var elemsNavbar = document.querySelectorAll('.sidenav');
-        M.Sidenav.init(elemsNavbar);
-
+            var elemsNavbar = document.querySelectorAll('.sidenav');
+            M.Sidenav.init(elemsNavbar);
         </script>
     </div>
 {% endblock %}
