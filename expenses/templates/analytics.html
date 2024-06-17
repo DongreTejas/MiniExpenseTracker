@@ -4,13 +4,16 @@
 {% block content %}
     <nav class="nav-wrapper teal lighten-1">
         <div class="container">
-            <a class="brand-logo"><em>Expense Tracker</em></a>
-            <a href="#" data-target="nav-mobile" class="sidenav-trigger hide-on-large"><i class="material-icons">menu</i></a>
+            <a href="#" class="brand-logo center-on-small-only"><em>Expense Tracker</em></a>
+            <a href="#" data-target="nav-mobile" class="sidenav-trigger"><i class="material-icons">menu</i></a>
             <ul class="right hide-on-med-and-down">
                 <li><a href="#">Welcome, {{ user }}</a></li>
                 <li><a href="{% url 'dashboard' %}" class="btn">Expenses</a></li>
             </ul>
-            <ul id="nav-mobile" class="right sidenav"></ul>
+            <ul id="nav-mobile" class="right sidenav">
+                <li><a href="#">Welcome, {{ user }}</a></li>
+                <li><a href="{% url 'dashboard' %}" class="btn">Expenses</a></li>
+            </ul>
         </div>
     </nav>
     <div class="container">
@@ -66,40 +69,50 @@
             });
 
             // Prepare data for the bar chart
-            var dailyLabels = [];
-            var dailyData = [];
+        var dailyLabels = [];
+        var dailyData = [];
+        var maxExpense = 2000;  // Default max value for the y-axis
+        {% for daily_cost in daily_costs %}
+            dailyLabels.push('{{ daily_cost.created_at|date:"Y-m-d" }}');
+            dailyData.push({{ daily_cost.total_cost }});
+            if ({{ daily_cost.total_cost }} > maxExpense) {
+                maxExpense = {{ daily_cost.total_cost }};
+            }
+        {% endfor %}
 
-            // Iterate over daily_costs and populate the data arrays
-            {% for daily_cost in daily_costs %}
-                dailyLabels.push('{{ daily_cost.created_at }}');
-                dailyData.push({{ daily_cost.total_cost }});
-            {% endfor %}
 
-            // Create the bar chart
-            var ctxBar = document.getElementById('dailyBarChart').getContext('2d');
-            var dailyBarChart = new Chart(ctxBar, {
-                type: 'bar',
-                data: {
-                    labels: dailyLabels,
-                    datasets: [{
-                        label: 'Daily Expenses',
-                        data: dailyData,
-                        backgroundColor: '#36A2EB'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: {
-                            beginAtZero: true
-                        },
-                        y: {
-                            beginAtZero: true
+        // Create the bar chart
+        var ctx2 = document.getElementById('dailyBarChart').getContext('2d');
+        var dailyBarChart = new Chart(ctx2, {
+            type: 'bar',
+            data: {
+                labels: dailyLabels,
+                datasets: [{
+                    label: 'Daily Expenses',
+                    data: dailyData,
+                    backgroundColor: '#36A2EB'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: maxExpense < 2000 ? 2000 : maxExpense,  
+                        suggestedMin: 0,
+                        ticks: {
+                            callback: function(value) { return '₹' + value; },
+                     
                         }
                     }
                 }
-            });
+            }
+        });
+
+        var elemsNavbar = document.querySelectorAll('.sidenav');
+        M.Sidenav.init(elemsNavbar);
+
         </script>
     </div>
 {% endblock %}

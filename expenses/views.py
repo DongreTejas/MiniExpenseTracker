@@ -75,11 +75,21 @@ def analytics_view(request):
     category_costs = expenses.values('category').annotate(total_cost=Sum('cost'))
 
 
-    seven_days_ago = now().date() - timedelta(days=7)
+    seven_days_ago = now().date() - timedelta(days=6)
     last_7_days_expenses = expenses.filter(created_at__date__gte=seven_days_ago)
-    
-    
-    daily_costs = last_7_days_expenses.values('created_at').annotate(total_cost=Sum('cost')).order_by('created_at')
+
+    # Initialize a dictionary for the last 7 days with 0 values
+    daily_cost_dict = {seven_days_ago + timedelta(days=i): 0 for i in range(7)}
+
+    # Query to get expenses summed by date
+    daily_expenses = last_7_days_expenses.values('created_at').annotate(total_cost=Sum('cost')).order_by('created_at')
+
+    # Update dictionary with actual expense values
+    for daily in daily_expenses:
+        daily_cost_dict[daily['created_at']] = daily['total_cost']
+
+    # Create a list from the dictionary to pass to the template
+    daily_costs = [{'date': date, 'total_cost': cost} for date, cost in daily_cost_dict.items()]
 
     context = {
         'expenses': expenses,
